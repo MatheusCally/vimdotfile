@@ -1,3 +1,26 @@
+let mapleader = " "
+
+call plug#begin()
+    Plug 'ghifarit53/tokyonight-vim'
+    Plug 'preservim/nerdtree'
+    Plug 'junegunn/fzf' 
+    Plug 'junegunn/fzf.vim'
+    Plug 'bling/vim-bufferline'
+    Plug 'liuchengxu/vim-which-key'
+    Plug 'tpope/vim-dadbod'
+    Plug 'kristijanhusak/vim-dadbod-ui'
+    Plug 'kristijanhusak/vim-dadbod-completion'
+    Plug 'vim-airline/vim-airline'
+    Plug 'vim-airline/vim-airline-themes'
+    Plug 'easymotion/vim-easymotion'
+call plug#end()
+nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
+set timeoutlen=500
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#wordcount#enabled = 1
+let g:airline_section_z = 0
+let g:airline_section_y = 0
+let g:airline#extensions#whitespace#enabled = 0
 " --- CONFIGURAÇÕES BÁSICAS (Estilo IDE) ---
 set nocompatible            " Desativa compatibilidade com vi antigo
 filetype plugin indent on   " Detecta tipo de arquivo e indentação
@@ -11,6 +34,27 @@ set splitbelow              " Novos splits abrem em baixo
 set splitright              " Novos splits abrem na direita
 set nowrap                  " Não quebra linhas longas
 
+
+" --- Configurações de Indentação ---
+
+" Mostra caracteres de tabulação existentes com 8 colunas de largura
+set tabstop=8
+
+" Usa 4 colunas para cada nível de indentação
+set shiftwidth=4
+
+" Ao pressionar <Tab>, insere 4 espaços ou move para a parada de 4 colunas
+set softtabstop=4
+
+" Converte tabulações em espaços
+set expandtab
+
+" Copia a indentação da linha anterior ao iniciar uma nova linha
+set autoindent
+
+" Indentação inteligente para linguagens baseadas em C (C, Java, etc)
+set smartindent
+
 " --- 1. EXPLORADOR DE ARQUIVOS (Netrw - Nativo) ---
 " O Netrw já vem instalado. Vamos configurá-lo para parecer o sidebar do VSCode.
 let g:netrw_banner = 0        " Remove o banner chato do topo
@@ -20,12 +64,12 @@ let g:netrw_altv = 1          " Splits verticais abrem à direita
 let g:netrw_winsize = 25      " Largura da janela (25%)
 
 " Atalho Ctrl+b para abrir/fechar o explorador (igual VSCode)
-nnoremap <C-e> :Lexplore<CR>
+nnoremap <C-e> :Files<CR>
 
 " --- 2. TERMINAL INTEGRADO ---
 " O Vim 8.1+ tem terminal nativo.
 " Atalho Ctrl+j para abrir um terminal pequeno em baixo
-nnoremap <C-j> :botright terminal<CR>
+nnoremap <C-/> :botright terminal<CR>
 
 " Para sair do modo terminal e voltar para o código, use Ctrl+\ seguido de Ctrl+n
 tnoremap <Esc> <C-\><C-n>
@@ -104,3 +148,61 @@ endtry
 " Digite o termo, dê Enter, e ele abre uma lista rápida (Quickfix) com os resultados
 command! -nargs=1 Grep execute 'rg --vimgrep <args> .' | copen
 nnoremap <C-g> :Grep
+
+
+
+set termguicolors
+
+let g:tokyonight_style = 'storm' " available: night, storm
+let g:tokyonight_enable_italic = 1
+
+colorscheme tokyonight
+
+" --- Mover entre janelas usando <Ctrl> hjkl ---
+" Usamos nmap porque o comando destino (<C-w>h) é um atalho nativo
+nmap <C-h> <C-w>h
+nmap <C-j> <C-w>j
+nmap <C-k> <C-w>k
+nmap <C-l> <C-w>l
+
+" --- Redimensionar janelas usando <Ctrl> Setas ---
+nnoremap <C-Up> :resize +2<CR>
+nnoremap <C-Down> :resize -2<CR>
+nnoremap <C-Left> :vertical resize -2<CR>
+nnoremap <C-Right> :vertical resize +2<CR>
+
+" --- Buffers ---
+nnoremap <S-h> :bprevious<CR>
+nnoremap <S-l> :bnext<CR>
+nnoremap <leader>bd :bd<CR>
+
+" --- Tabs ---
+nnoremap <leader><tab>l :tablast<CR>
+nnoremap <leader><tab>o :tabonly<CR>
+nnoremap <leader><tab>f :tabfirst<CR>
+nnoremap <leader><tab><tab> :tabnew<CR>
+nnoremap <leader><tab>] :tabnext<CR>
+nnoremap <leader><tab>d :tabclose<CR>
+nnoremap <leader><tab>[ :tabprevious<CR>
+
+
+nnoremap <leader>fn :enew<CR>
+
+" --- Mapeamentos FZF (Substituindo Telescope) ---
+let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+" <leader>ff : Localizar arquivos (Files)
+nnoremap <leader>ff :Files<CR>
+
+" <leader>fg : Buscar texto dentro dos arquivos (Ripgrep)
+" Nota: Requer o binário 'rg' (ripgrep) instalado no sistema
+nnoremap <leader>fg :Rg<CR>
+
+" <leader>fb : Listar e alternar entre buffers abertos
+nnoremap <leader>fb :Buffers<CR>
+
+" Extra: <leader>fh : Histórico de arquivos abertos (opcional, mas útil)
+nnoremap <leader>fh :History<CR>
+
+
+" Nerdtree
+nnoremap <leader>e :NERDTreeToggle<CR>
