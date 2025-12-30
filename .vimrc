@@ -1,11 +1,10 @@
 let mapleader = " "
-
+filetype plugin indent on
 call plug#begin()
     Plug 'ghifarit53/tokyonight-vim'
     Plug 'preservim/nerdtree'
     Plug 'junegunn/fzf' 
     Plug 'junegunn/fzf.vim'
-    Plug 'bling/vim-bufferline'
     Plug 'liuchengxu/vim-which-key'
     Plug 'tpope/vim-dadbod'
     Plug 'kristijanhusak/vim-dadbod-ui'
@@ -13,6 +12,14 @@ call plug#begin()
     Plug 'vim-airline/vim-airline'
     Plug 'vim-airline/vim-airline-themes'
     Plug 'easymotion/vim-easymotion'
+    Plug 'tpope/vim-surround'
+    Plug 'tpope/vim-commentary'
+    Plug 'michaeljsmith/vim-indent-object'
+    Plug 'bkad/CamelCaseMotion'
+    Plug 'wellle/targets.vim'
+    Plug 'prabirshrestha/vim-lsp'
+    Plug 'prabirshrestha/asyncomplete.vim'
+    Plug 'prabirshrestha/asyncomplete-lsp.vim'
 call plug#end()
 nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 set timeoutlen=500
@@ -23,7 +30,7 @@ let g:airline_section_y = 0
 let g:airline#extensions#whitespace#enabled = 0
 " --- CONFIGURAÇÕES BÁSICAS (Estilo IDE) ---
 set nocompatible            " Desativa compatibilidade com vi antigo
-filetype plugin indent on   " Detecta tipo de arquivo e indentação
+"filetype plugin indent on   " Detecta tipo de arquivo e indentação
 syntax on                   " Habilita cores de sintaxe
 set number                  " Números de linha
 " set relativenumber          " Números relativos (opcional, bom para navegação)
@@ -206,3 +213,34 @@ nnoremap <leader>fh :History<CR>
 
 " Nerdtree
 nnoremap <leader>e :NERDTreeToggle<CR>
+
+" CamelCaseMotion
+let g:camelcasemotion_key = '<leader>'
+imap <c-space> <Plug>(asyncomplete_force_refresh)
+
+if executable('java')
+    augroup LSP_Java
+        autocmd!
+        autocmd User lsp_setup call lsp#register_server({
+            \ 'name': 'eclipse-jdt-ls',
+            \ 'cmd': {server_info->[
+            \     'java',
+            \     '-javaagent:/home/cally/.vscode/extensions/redhat.java-1.50.0-linux-x64/lombok/lombok-1.18.39-4050.jar',
+            \     '-Declipse.application=org.eclipse.jdt.ls.core.id1',
+            \     '-Dosgi.bundles.defaultStartLevel=4',
+            \     '-Declipse.product=org.eclipse.jdt.ls.core.product',
+            \     '-Dlog.protocol=true',
+            \     '-Dlog.level=ALL',
+            \     '-Xms1g',
+            \     '--add-modules=ALL-SYSTEM',
+            \     '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+            \     '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+            \     '-jar', '/home/cally/.vscode/extensions/redhat.java-1.50.0-linux-x64/server/plugins/org.eclipse.equinox.launcher_1.7.100.v20251111-0406.jar',
+            \     '-configuration', '/home/cally/.vscode/extensions/redhat.java-1.50.0-linux-x64/server/config_linux',
+            \     '-data', '/home/cally/.cache/jdtls-workspace'
+            \ ]},
+            \ 'root_uri': {server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), ['pom.xml', 'build.gradle', '.git']))},
+            \ 'allowlist': ['java'],
+            \ })
+    augroup END
+endif
