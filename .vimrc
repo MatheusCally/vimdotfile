@@ -20,6 +20,7 @@ call plug#begin()
     Plug 'prabirshrestha/vim-lsp'
     Plug 'prabirshrestha/asyncomplete.vim'
     Plug 'prabirshrestha/asyncomplete-lsp.vim'
+    Plug 'bling/vim-bufferline'
 call plug#end()
 nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 set timeoutlen=500
@@ -28,6 +29,7 @@ let g:airline#extensions#wordcount#enabled = 1
 let g:airline_section_z = 0
 let g:airline_section_y = 0
 let g:airline#extensions#whitespace#enabled = 0
+:set hidden
 " --- CONFIGURAÇÕES BÁSICAS (Estilo IDE) ---
 set nocompatible            " Desativa compatibilidade com vi antigo
 "filetype plugin indent on   " Detecta tipo de arquivo e indentação
@@ -153,6 +155,10 @@ endtry
 
 " Atalho Ctrl+g para pesquisar TEXTO nos arquivos (Requer 'grep' ou 'ripgrep')
 " Digite o termo, dê Enter, e ele abre uma lista rápida (Quickfix) com os resultados
+if executable('rg')
+    set grepprg=rg\ --vimgrep\ --smart-case
+    set grepformat=%f:%l:%c:%m
+endif
 command! -nargs=1 Grep execute 'rg --vimgrep <args> .' | copen
 nnoremap <C-g> :Grep
 
@@ -215,7 +221,7 @@ nnoremap <leader>fh :History<CR>
 nnoremap <leader>e :NERDTreeToggle<CR>
 
 " CamelCaseMotion
-let g:camelcasemotion_key = '<leader>'
+let g:camelcasemotion_key = '\'
 imap <c-space> <Plug>(asyncomplete_force_refresh)
 
 if executable('java')
