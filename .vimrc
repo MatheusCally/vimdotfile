@@ -21,7 +21,13 @@ call plug#begin()
     Plug 'prabirshrestha/asyncomplete.vim'
     Plug 'prabirshrestha/asyncomplete-lsp.vim'
     Plug 'bling/vim-bufferline'
+    Plug 'puremourning/vimspector'
+    Plug 'neoclide/coc.nvim', {'branch': 'release'}
+    Plug 'github/copilot.vim'
+    Plug 'DanBradbury/copilot-chat.vim'
+    Plug 'vim-test/vim-test'
 call plug#end()
+let g:vimspector_enable_mappings = 'HUMAN'
 nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 set timeoutlen=500
 let g:airline_powerline_fonts = 1
@@ -109,50 +115,6 @@ try
 catch
 endtry
 
-" --- BUSCA TURBINADA (FZF + FD) ---
-"if executable('fzf')
-"    function! FzfComFd()
-"        " Define o comando de busca. 
-"        " No Debian/Ubuntu o binário chama-se 'fdfind', em outros é 'fd'.
-"        if executable('fdfind')
-"            let l:cmd_busca = 'fdfind'
-"        elseif executable('fd')
-"            let l:cmd_busca = 'fd'
-"        else
-"            echo "Erro: fd não encontrado. Instale o 'fd-find'."
-"            return
-"        endif
-"
-"        " Configurações do comando fd:
-"        " --type f: procura apenas arquivos
-"        " --strip-cwd-prefix: remove o './' do início dos nomes (estética)
-"        " --follow: segue links simbólicos
-"        " --exclude .git: garante que não vamos entrar na pasta git
-"        let l:comando_completo = l:cmd_busca . ' --type f --strip-cwd-prefix --follow --exclude .git'
-"
-"        " Cria arquivo temporário para a escolha
-"        let l:temp = tempname()
-"        
-"        " Executa: fd (lista arquivos) | fzf (seleciona) > arquivo_temp
-"        " O < /dev/tty força o fzf a usar o terminal interativo mesmo dentro do vim
-"	execute '!' . l:comando_completo . ' | fzf  > ' . l:temp
-"
-"        redraw! " Limpa a tela após fechar o fzf
-"
-"        " Abre o arquivo escolhido, se houver
-"        if filereadable(l:temp)
-"            let l:escolha = readfile(l:temp)
-"            if !empty(l:escolha)
-"                execute 'edit ' . l:escolha[0]
-"            endif
-"            call delete(l:temp)
-"        endif
-"    endfunction
-"
-"    " Mapeia Ctrl+p para essa nova função
-"    nnoremap <C-p> :call FzfComFd()<CR>
-"endif
-
 " Atalho Ctrl+g para pesquisar TEXTO nos arquivos (Requer 'grep' ou 'ripgrep')
 " Digite o termo, dê Enter, e ele abre uma lista rápida (Quickfix) com os resultados
 if executable('rg')
@@ -224,29 +186,105 @@ nnoremap <leader>e :NERDTreeToggle<CR>
 let g:camelcasemotion_key = '\'
 imap <c-space> <Plug>(asyncomplete_force_refresh)
 
-if executable('java')
-    augroup LSP_Java
-        autocmd!
-        autocmd User lsp_setup call lsp#register_server({
-            \ 'name': 'eclipse-jdt-ls',
-            \ 'cmd': {server_info->[
-            \     'java',
-            \     '-javaagent:/home/cally/.vscode/extensions/redhat.java-1.50.0-linux-x64/lombok/lombok-1.18.39-4050.jar',
-            \     '-Declipse.application=org.eclipse.jdt.ls.core.id1',
-            \     '-Dosgi.bundles.defaultStartLevel=4',
-            \     '-Declipse.product=org.eclipse.jdt.ls.core.product',
-            \     '-Dlog.protocol=true',
-            \     '-Dlog.level=ALL',
-            \     '-Xms1g',
-            \     '--add-modules=ALL-SYSTEM',
-            \     '--add-opens', 'java.base/java.util=ALL-UNNAMED',
-            \     '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-            \     '-jar', '/home/cally/.vscode/extensions/redhat.java-1.50.0-linux-x64/server/plugins/org.eclipse.equinox.launcher_1.7.100.v20251111-0406.jar',
-            \     '-configuration', '/home/cally/.vscode/extensions/redhat.java-1.50.0-linux-x64/server/config_linux',
-            \     '-data', '/home/cally/.cache/jdtls-workspace'
-            \ ]},
-            \ 'root_uri': {server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), ['pom.xml', 'build.gradle', '.git']))},
-            \ 'allowlist': ['java'],
-            \ })
-    augroup END
-endif
+" if executable('java')
+"     augroup LSP_Java
+"         autocmd!
+"         autocmd User lsp_setup call lsp#register_server({
+"             \ 'name': 'eclipse-jdt-ls',
+"             \ 'cmd': {server_info->[
+"             \     'java',
+"             \     '-javaagent:/home/cally/.vscode/extensions/redhat.java-1.50.0-linux-x64/lombok/lombok-1.18.39-4050.jar',
+"             \     '-Declipse.application=org.eclipse.jdt.ls.core.id1',
+"             \     '-Dosgi.bundles.defaultStartLevel=4',
+"             \     '-Declipse.product=org.eclipse.jdt.ls.core.product',
+"             \     '-Dlog.protocol=true',
+"             \     '-Dlog.level=ALL',
+"             \     '-Xms1g',
+"             \     '--add-modules=ALL-SYSTEM',
+"             \     '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+"             \     '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+"             \     '-jar', '/home/cally/.vscode/extensions/redhat.java-1.50.0-linux-x64/server/plugins/org.eclipse.equinox.launcher_1.7.100.v20251111-0406.jar',
+"             \     '-configuration', '/home/cally/.vscode/extensions/redhat.java-1.50.0-linux-x64/server/config_linux',
+"             \     '-data', '/home/cally/.cache/jdtls-workspace'
+"             \ ]},
+"             \ 'root_uri': {server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), ['pom.xml', 'build.gradle', '.git']))},
+"             \ 'allowlist': ['java'],
+"               \ 'initialization_options': {
+"               \   'bundles': [
+"               \      "~/dev/lsp/java/com.microsoft.java.debug.plugin-0.53.2.jar"
+"               \],
+"               \ },
+"             \ })
+"     augroup END
+" endif
+
+" function! Typescript_language_server_get_blocklist() abort
+"     if empty(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), 'node_modules/'))
+"         return ['typescript', 'javascript', 'typescriptreact', 'javascriptreact']
+"     endif
+"     if !empty(lsp#utils#find_nearest_parent_file(lsp#utils#get_buffer_path(), 'deno.json'))
+"         return ['typescript', 'javascript', 'typescriptreact', 'javascriptreact']
+"     endif
+"     return []
+" endfunction
+
+" augroup LSP_typescript
+"     autocmd!
+"     autocmd User lsp_setup call lsp#register_server({
+"       \ 'name': 'typescript-language-server',
+"       \ 'cmd': ['typescript-language-server', '--stdio'],
+"       \ 'root_uri':{server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), ['pom.xml', 'build.gradle', '.git']))},
+"       \ 'initialization_options': {
+"       \   'preferences': {
+"       \     'includeInlayParameterNameHintsWhenArgumentMatchesName': v:true,
+"       \     'includeInlayParameterNameHints': 'all',
+"       \     'includeInlayVariableTypeHints': v:true,
+"       \     'includeInlayPropertyDeclarationTypeHints': v:true,
+"       \     'includeInlayFunctionParameterTypeHints': v:true,
+"       \     'includeInlayEnumMemberValueHints': v:true,
+"       \     'includeInlayFunctionLikeReturnTypeHints': v:true
+"       \   },
+"       \ },
+"       \ 'allowlist': ['javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'typescript.tsx'],
+"       \ 'blocklist': Typescript_language_server_get_blocklist(),
+"       \ })
+" augroup END
+
+" Neovim-like LSP mappings for vim-lsp
+nnoremap grn <plug>(lsp-rename)
+nmap gra <plug>(lsp-code-action)
+vmap gra <plug>(lsp-code-action)
+nnoremap grr <plug>(lsp-find-references)
+nnoremap gri <plug>(lsp-find-implementation)
+nnoremap grt <plug>(lsp-find-type-definition)
+nnoremap gO <plug>(lsp-document-symbol)
+inoremap <C-s> <plug>(lsp-signature-help)
+
+
+nnoremap <silent> <leader>dj :CocCommand java.debug.vimspector.start<CR>
+nnoremap <silent> <leader>dq :VimspectorReset<CR>
+
+" Controle de Execução
+nnoremap <silent> <leader>dc <Plug>VimspectorContinue
+nnoremap <silent> <leader>ds <Plug>VimspectorStop
+nnoremap <silent> <leader>dr <Plug>VimspectorRestart
+nnoremap <silent> <leader>dp <Plug>VimspectorPause
+
+" Breakpoints
+nnoremap <silent> <leader>db <Plug>VimspectorToggleBreakpoint
+nnoremap <silent> <leader>dB <Plug>VimspectorToggleConditionalBreakpoint
+nnoremap <silent> <leader>df <Plug>VimspectorAddFunctionBreakpoint
+nnoremap <silent> <leader>dt <Plug>VimspectorRunToCursor
+
+" Navegação (Stepping)
+nnoremap <silent> <leader>dn <Plug>VimspectorStepOver
+nnoremap <silent> <leader>di <Plug>VimspectorStepInto
+nnoremap <silent> <leader>do <Plug>VimspectorStepOut
+
+" Vim test
+nmap <silent> <leader>t :TestNearest<CR>
+nmap <silent> <leader>T :TestFile<CR>
+nmap <silent> <leader>a :TestSuite<CR>
+nmap <silent> <leader>l :TestLast<CR>
+nmap <silent> <leader>g :TestVisit<CR>
+
